@@ -1,4 +1,5 @@
 import os
+import sys
 from dotenv import load_dotenv
 from google import genai
 
@@ -9,13 +10,17 @@ def main():
 
     # .env 파일 불러와 환경변수에 등록
     load_dotenv()
+
+    if len(sys.argv) < 2:
+        raise Exception("the prompt is not provided")
+        # @@@ sys.exit(1)도 exit code 1 과 함께 종료 가능
+    prompt = " ".join(sys.argv[1:])
+
     # GEMINI_API_KEY 값 저장
     api_key = os.environ.get("GEMINI_API_KEY")
 
     # gemini client 생성
     client = genai.Client(api_key=api_key)
-
-    prompt = "Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum."
 
     print("Prompt: " + prompt)
 
