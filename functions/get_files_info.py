@@ -1,6 +1,9 @@
 import os
 
 def get_files_info(working_directory, directory="."):
+    '''
+    주어진 경로에 있는 파일이나 폴더의 정보를 리스트로 담은 스트링을 반환하는 함수
+    '''
     # @@@ TODO: try - except로 raise된 에러 잡고 에러를 string으로 반환하기
     result = []
 
@@ -14,7 +17,6 @@ def get_files_info(working_directory, directory="."):
         return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
     
     if not os.path.isdir(abs_full_path):
-        result.append(f'    Error: "{directory}" is not a directory')
         return f'Error: "{directory}" is not a directory'
     
 
