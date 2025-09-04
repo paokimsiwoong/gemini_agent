@@ -2,3 +2,9 @@ __pycache__/
 *.ipynb
 .venv
 .env
+
+calculator/pkg/test
+
+lorem_backup.txt
+morelorem.txt
+lorem.txt
