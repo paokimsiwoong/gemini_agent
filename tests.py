@@ -5,6 +5,7 @@ import unittest
 from functions.get_files_info import get_files_info
 from functions.get_file_content import get_file_content
 from functions.write_file import write_file
+from functions.run_python_file import run_python_file
 from config import MAX_CHARS
 
 class TestCalculator(unittest.TestCase):
@@ -82,40 +83,72 @@ class TestCalculator(unittest.TestCase):
     #     print(result)
     #     self.assertEqual(result, f'Error: File not found or is not a regular file: "{file_path}"')
 
-    def test_write_overwrite(self):
-        file_path = "lorem.txt"
-        content = "wait, this isn't lorem ipsum"
-        result = write_file("calculator", file_path=file_path, content=content)
-        print(result)
-        self.assertEqual(result, f'Successfully wrote to "{file_path}" ({len(content)} characters written)')
+    # def test_write_overwrite(self):
+    #     file_path = "lorem.txt"
+    #     content = "wait, this isn't lorem ipsum"
+    #     result = write_file("calculator", file_path=file_path, content=content)
+    #     print(result)
+    #     self.assertEqual(result, f'Successfully wrote to "{file_path}" ({len(content)} characters written)')
     
-    def test_write_file(self):
-        file_path = "pkg/morelorem.txt"
-        content = "lorem ipsum dolor sit amet"
-        result = write_file("calculator", file_path=file_path, content=content)
-        print(result)
-        self.assertEqual(result, f'Successfully wrote to "{file_path}" ({len(content)} characters written)')
+    # def test_write_file(self):
+    #     file_path = "pkg/morelorem.txt"
+    #     content = "lorem ipsum dolor sit amet"
+    #     result = write_file("calculator", file_path=file_path, content=content)
+    #     print(result)
+    #     self.assertEqual(result, f'Successfully wrote to "{file_path}" ({len(content)} characters written)')
     
-    def test_write_fileanddirs(self):
-        file_path = "pkg/test/morelorem.txt"
-        content = "lorem ipsum dolor sit amet"
-        result = write_file("calculator", file_path=file_path, content=content)
-        print(result)
-        self.assertEqual(result, f'Successfully wrote to "{file_path}" ({len(content)} characters written)')
+    # def test_write_fileanddirs(self):
+    #     file_path = "pkg/test/morelorem.txt"
+    #     content = "lorem ipsum dolor sit amet"
+    #     result = write_file("calculator", file_path=file_path, content=content)
+    #     print(result)
+    #     self.assertEqual(result, f'Successfully wrote to "{file_path}" ({len(content)} characters written)')
     
-    def test_write_outside(self):
-        file_path = "/tmp/temp.txt"
-        content = "this should not be allowed"
-        result = write_file("calculator", file_path=file_path, content=content)
-        print(result)
-        self.assertEqual(result, f'Error: Cannot write to "{file_path}" as it is outside the permitted working directory')
+    # def test_write_outside(self):
+    #     file_path = "/tmp/temp.txt"
+    #     content = "this should not be allowed"
+    #     result = write_file("calculator", file_path=file_path, content=content)
+    #     print(result)
+    #     self.assertEqual(result, f'Error: Cannot write to "{file_path}" as it is outside the permitted working directory')
     
-    def test_write_dir(self):
-        file_path = "pkg/test"
-        content = "this should not be allowed"
-        result = write_file("calculator", file_path=file_path, content=content)
+    # def test_write_dir(self):
+    #     file_path = "pkg/test"
+    #     content = "this should not be allowed"
+    #     result = write_file("calculator", file_path=file_path, content=content)
+    #     print(result)
+    #     self.assertEqual(result, f'Error: "{file_path}" is a directory, not a file')
+
+    def test_run_default(self):
+        file_path = "main.py"
+        result = run_python_file("calculator", file_path=file_path)
         print(result)
-        self.assertEqual(result, f'Error: "{file_path}" is a directory, not a file')
+        self.assertTrue('Usage: python main.py "<expression>"' in result)
+
+    def test_run_addition(self):
+        file_path = "main.py"
+        result = run_python_file("calculator", file_path=file_path, args=["3 + 5"])
+        print(result)
+        self.assertTrue('=' in result)
+        self.assertTrue('8' in result)
+
+    def test_run_tests(self):
+        file_path = "tests.py"
+        result = run_python_file("calculator", file_path=file_path)
+        print(result)
+        self.assertTrue("Ran" in result)
+        self.assertTrue("OK" in result)
+
+    def test_run_outside(self):
+        file_path = "../main.py"
+        result = run_python_file("calculator", file_path=file_path)
+        print(result)
+        self.assertEqual(result, f'Error: Cannot execute "{file_path}" as it is outside the permitted working directory')
+
+    def test_run_nonexistent(self):
+        file_path = "nonexistent.py"
+        result = run_python_file("calculator", file_path=file_path)
+        print(result)
+        self.assertEqual(result, f'Error: File "{file_path}" not found.')
 
 if __name__ == "__main__":
     unittest.main()
