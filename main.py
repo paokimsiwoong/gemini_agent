@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from config import SYSTEM_PROMPT, available_functions
+from config import SYSTEM_PROMPT, AVAILABLE_FUNCTIONS
 
 
 def main():
@@ -62,7 +62,7 @@ def generate_content(client: genai.Client, messages, verbose_flag):
         contents=messages,
         config= types.GenerateContentConfig(
             system_instruction=SYSTEM_PROMPT,
-            tools=[available_functions], # tools 인자에는 types.Tool을 담은 list 제공
+            tools=[AVAILABLE_FUNCTIONS], # tools 인자에는 types.Tool을 담은 list 제공
             ),
         )
     # response는 GenerateContentResponse 타입

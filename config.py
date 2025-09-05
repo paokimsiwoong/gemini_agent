@@ -15,8 +15,8 @@ All paths you provide should be relative to the working directory. You do not ne
 """
 
 
-
-available_functions = types.Tool(
+# available_functions = types.Tool(
+AVAILABLE_FUNCTIONS = types.Tool(
     function_declarations=[
         schema_get_files_info,
     ]
