@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from config import SYSTEM_PROMPT
+from config import SYSTEM_PROMPT, available_functions
 
 
 def main():
@@ -53,12 +53,17 @@ def main():
 
 
 # 유저 메세지 입력과 그 답변, 토큰 개수 출력은 계속 반복 사용될 코드이므로 함수로 만들기
-def generate_content(client, messages, verbose_flag):
+def generate_content(client: genai.Client, messages, verbose_flag):
+
+
     # 모델을 선택하고 프롬프트 입력해 답변 받기
     response = client.models.generate_content(
         model="gemini-2.0-flash-001", 
         contents=messages,
-        config= types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+        config= types.GenerateContentConfig(
+            system_instruction=SYSTEM_PROMPT,
+            tools=[available_functions], # tools 인자에는 types.Tool을 담은 list 제공
+            ),
         )
     # response는 GenerateContentResponse 타입
 
@@ -66,9 +71,15 @@ def generate_content(client, messages, verbose_flag):
     if verbose_flag:
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
+    
+    # 함수 호출이 없이 단순 텍스트 답변이면 바로 출력
+    if not response.function_calls:
+        print("Response:")
+        print(response.text)
 
-    print("Response:")
-    print(response.text)
+    # 함수 호출이 있는 경우 호출하는 함수 이름과 인자들 출력
+    for function_call_part in response.function_calls:
+        print(f"Calling function: {function_call_part.name}({function_call_part.args})")
 
 if __name__ == "__main__":
     main()

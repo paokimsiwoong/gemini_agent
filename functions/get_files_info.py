@@ -1,5 +1,7 @@
 import os
 
+from google.genai import types
+
 def get_files_info(working_directory, directory="."):
     '''
     주어진 경로에 있는 파일이나 폴더의 정보를 리스트로 담은 스트링을 반환하는 함수
@@ -33,3 +35,17 @@ def get_files_info(working_directory, directory="."):
     return "\n".join(result)
 
     
+
+schema_get_files_info = types.FunctionDeclaration(
+    name="get_files_info",
+    description="Lists files in the specified directory along with their sizes, constrained to the working directory.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "directory": types.Schema(
+                type=types.Type.STRING,
+                description="The directory to list files from, relative to the working directory. If not provided, lists files in the working directory itself.",
+            ),
+        },
+    ),
+)
