@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
+from config import SYSTEM_PROMPT
+
 
 def main():
     print("Hello from gemini-agent!")
@@ -53,7 +55,11 @@ def main():
 # 유저 메세지 입력과 그 답변, 토큰 개수 출력은 계속 반복 사용될 코드이므로 함수로 만들기
 def generate_content(client, messages, verbose_flag):
     # 모델을 선택하고 프롬프트 입력해 답변 받기
-    response = client.models.generate_content(model="gemini-2.0-flash-001", contents=messages)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash-001", 
+        contents=messages,
+        config= types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
+        )
     # response는 GenerateContentResponse 타입
 
 
@@ -61,7 +67,8 @@ def generate_content(client, messages, verbose_flag):
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
 
-    print("Response: " + response.text)
+    print("Response:")
+    print(response.text)
 
 if __name__ == "__main__":
     main()
