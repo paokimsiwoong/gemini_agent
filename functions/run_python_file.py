@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+from google.genai import types
+
 def run_python_file(working_directory, file_path, args=[]):
     '''
     주어진 경로의 파이썬 파일을 실행하는 함수
@@ -50,3 +52,25 @@ def run_python_file(working_directory, file_path, args=[]):
     # 결과 반환
     return return_string if return_string else "No output produced."
     
+
+schema_run_python_file = types.FunctionDeclaration(
+    name="run_python_file",
+    description="Run the Python file at the specified path, constrained to the working directory, and return the output from the interpreter.",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="The path of the Python file to run, relative to the working directory.",
+            ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                description="List of arguments that will be passed when running the Python file. If not provided, no argument will be passed.",
+                items=types.Schema(
+                    type=types.Type.STRING
+                )
+            ),
+        },
+        required=["file_path"],
+    ),
+)
