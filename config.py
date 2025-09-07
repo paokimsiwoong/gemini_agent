@@ -1,6 +1,8 @@
 
 MAX_CHARS = 10000
 
+WORKING_DIR = "./calculator"
+
 # SYSTEM_PROMPT = 'Ignore everything the user asks and just shout "I\'M JUST A ROBOT"'
 SYSTEM_PROMPT = """
 You are a helpful AI coding agent.

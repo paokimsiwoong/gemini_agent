@@ -5,7 +5,7 @@ from google import genai
 from google.genai import types
 
 from config import SYSTEM_PROMPT
-from call_function import AVAILABLE_FUNCTIONS
+from call_function import AVAILABLE_FUNCTIONS, call_function
 
 
 def main():
@@ -79,8 +79,23 @@ def generate_content(client: genai.Client, messages, verbose_flag):
         print(response.text)
 
     # 함수 호출이 있는 경우 호출하는 함수 이름과 인자들 출력
+    function_responses = []
     for function_call_part in response.function_calls:
-        print(f"Calling function: {function_call_part.name}({function_call_part.args})")
+        function_call_result = call_function(function_call_part=function_call_part, verbose=verbose_flag)
+
+        # types.Content.parts는 types.Part의 리스트 => 빈 리스트인지 확인
+        # 빈 리스트가 아니면 그 안의 types.FunctionResponse의 response 필드(dict)가 비어있는지 확인
+        if not function_call_result.parts or not function_call_result.parts[0].function_response.response:
+            raise Exception("No function response found")
+
+        if verbose_flag:
+            print(f"-> {function_call_result.parts[0].function_response.response}")
+
+        function_responses.append(function_call_result.parts[0])
+
+    # call_function으로 함수들을 실행했는데도 함수 실행 결과가 없으면 raise
+    if not function_responses:
+        raise Exception("No function response found")
 
 if __name__ == "__main__":
     main()
