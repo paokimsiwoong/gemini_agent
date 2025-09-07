@@ -50,11 +50,21 @@ def main():
         types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
 
-    generate_content(client=client, messages=messages, verbose_flag=verbose_flag)
+    for i in range(20):
+        try:
+            response_text = generate_content(client=client, messages=messages, verbose_flag=verbose_flag)
 
+            if response_text is not None:
+                break
+
+        except Exception as e:
+            raise e
+
+    print("Final response:")
+    print(response_text)
 
 # 유저 메세지 입력과 그 답변, 토큰 개수 출력은 계속 반복 사용될 코드이므로 함수로 만들기
-def generate_content(client: genai.Client, messages, verbose_flag):
+def generate_content(client: genai.Client, messages: list[types.Content], verbose_flag: bool):
 
 
     # 모델을 선택하고 프롬프트 입력해 답변 받기
@@ -73,12 +83,17 @@ def generate_content(client: genai.Client, messages, verbose_flag):
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
     
-    # 함수 호출이 없이 단순 텍스트 답변이면 바로 출력
-    if not response.function_calls:
-        print("Response:")
-        print(response.text)
+    if response.candidates: # @@@ list가 비어있는지 여부 반드시 확인
+        for candidate in response.candidates:
+            # candidate의 contetn필드는 types.Content 
+            messages.append(candidate.content)
 
-    # 함수 호출이 있는 경우 호출하는 함수 이름과 인자들 출력
+
+    # 함수 호출이 없이 단순 텍스트 답변이면 바로 반환
+    if not response.function_calls:
+        return response.text
+
+    # 함수 호출이 있는 경우 함수 호출
     function_responses = []
     for function_call_part in response.function_calls:
         function_call_result = call_function(function_call_part=function_call_part, verbose=verbose_flag)
@@ -91,11 +106,15 @@ def generate_content(client: genai.Client, messages, verbose_flag):
         if verbose_flag:
             print(f"-> {function_call_result.parts[0].function_response.response}")
 
-        function_responses.append(function_call_result.parts[0])
+        function_responses.append(function_call_result)
 
     # call_function으로 함수들을 실행했는데도 함수 실행 결과가 없으면 raise
     if not function_responses:
         raise Exception("No function response found")
+    
+    # 함수 결과들을 messages에 추가
+    for f_response in function_responses:
+        messages.append(f_response)
 
 if __name__ == "__main__":
     main()
